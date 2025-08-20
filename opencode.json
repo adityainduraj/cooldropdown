@@ -1,0 +1,35 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": "allow"
+  },
+  "mode": {
+    "write": {
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": false,
+        "read": true,
+        "grep": true,
+        "glob": true,
+        "list": true,
+        "patch": true,
+        "todowrite": true,
+        "todoread": true
+      }
+    }
+  },
+  "mcp": {
+    "figma-mcp": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "figma-developer-mcp",
+        "--figma-api-key=figd_C9OnYz-_9V_iCVa9vT5gEbahoOmarlfSf3JYytOl",
+        "--stdio"
+      ],
+      "enabled": true
+    }
+  }
+}
