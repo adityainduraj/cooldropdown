@@ -451,7 +451,7 @@ function LaraconSelect<T = string>({
                 whiteSpace: 'nowrap',
                 transform: 'translateX(4px)',
                 opacity: 0,
-                filter: 'blur(0px) drop-shadow(1px 0 0 currentColor) drop-shadow(-1px 0 0 currentColor)',
+                filter: 'blur(1px) drop-shadow(1px 0 0 currentColor) drop-shadow(-1px 0 0 currentColor)',
                 transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), filter 250ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
@@ -475,7 +475,7 @@ function LaraconSelect<T = string>({
                 display: 'flex',
                 alignItems: 'flex-start',
                 opacity: isTransitioningIn ? 0 : 1,
-                filter: isTransitioningIn ? 'blur(0px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
+                filter: isTransitioningIn ? 'blur(1px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
                 transition: `transform 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, filter 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}`
               }}>
                 {/* Checkmark - slides in with text content */}
@@ -534,9 +534,9 @@ function LaraconSelect<T = string>({
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            transform: isTransitioningOut ? 'translateY(0px) translateX(-4px)' : 'translateY(0px) translateX(0px)',
+                            transform: isTransitioningOut ? 'translateY(0px) translateX(-2px)' : 'translateY(0px) translateX(0px)',
                             opacity: isTransitioningOut ? 0 : 1,
-                            filter: isTransitioningOut ? 'blur(0px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
+                            filter: isTransitioningOut ? 'blur(1px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
                             transition: `transform 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, filter 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}`
                           }}
                         >
