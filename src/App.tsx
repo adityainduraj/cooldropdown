@@ -10,8 +10,9 @@ function App() {
       overflow: 'hidden',
       borderTop: '1px solid rgba(255, 255, 255, 0.09)',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      paddingTop: '30vh'
     }}>
       <div 
         style={{
