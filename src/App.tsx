@@ -73,7 +73,7 @@ function App() {
           left: 0,
           backgroundImage: 'url(/noise.png)',
           backgroundRepeat: 'repeat',
-          backgroundSize: '80%',
+          backgroundSize: '70%',
           opacity: 0.7,
           mixBlendMode: 'overlay',
           zIndex: 1000,
