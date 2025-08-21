@@ -1,69 +1,164 @@
-# React + TypeScript + Vite
+# LaraconSelect Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A highly customizable, accessible dropdown select component built with React and TypeScript. Features smooth animations, keyboard navigation, and a comprehensive theming system.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Fully accessible** with ARIA attributes and keyboard navigation
+- **TypeScript support** with generic types for type-safe option handling
+- **Customizable theming** for colors, fonts, dimensions, and animations
+- **Smooth animations** with staggered transitions and crossfade effects
+- **Zero dependencies** beyond React
+- **Performance optimized** with React.memo and proper memoization
 
-## Expanding the ESLint configuration
+## Basic Usage
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```tsx
+import LaraconSelect from './components/LaraconSelect'
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+// Default usage with built-in Laracon options
+<LaraconSelect />
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Custom Options
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```tsx
+import LaraconSelect, { type SelectOption } from './components/LaraconSelect'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+const options: SelectOption[] = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3', disabled: true }
+]
+
+<LaraconSelect 
+  options={options}
+  placeholder="Choose an option"
+  onChange={(value, option) => console.log('Selected:', value)}
+/>
 ```
+
+## Controlled Component
+
+```tsx
+const [selectedValue, setSelectedValue] = useState<string>()
+
+<LaraconSelect
+  options={options}
+  value={selectedValue}
+  onChange={(value) => setSelectedValue(value)}
+/>
+```
+
+## API Reference
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `SelectOption<T>[]` | Default Laracon options | Array of options to display |
+| `value` | `T` | `undefined` | Currently selected value (for controlled mode) |
+| `onChange` | `(value: T, option: SelectOption<T>) => void` | `undefined` | Callback fired when selection changes |
+| `placeholder` | `string` | `"Select a Laracon"` | Placeholder text when no option selected |
+| `disabled` | `boolean` | `false` | Whether the component is disabled |
+| `theme` | `Partial<SelectTheme>` | Default theme | Custom theme overrides |
+| `className` | `string` | `undefined` | CSS class for the container |
+| `style` | `React.CSSProperties` | `undefined` | Inline styles for the container |
+| `id` | `string` | `undefined` | HTML id attribute |
+| `aria-label` | `string` | `undefined` | Accessibility label |
+| `aria-labelledby` | `string` | `undefined` | Reference to labeling element |
+| `autoFocus` | `boolean` | `false` | Auto focus on mount |
+
+### SelectOption Interface
+
+```tsx
+interface SelectOption<T = string> {
+  value: T
+  label: string
+  disabled?: boolean
+}
+```
+
+### Theme Customization
+
+```tsx
+const customTheme = {
+  width: '400px',
+  height: '56px',
+  borderRadius: '8px',
+  colors: {
+    text: '#ffffff',
+    placeholder: '#ffffff',
+    accent: '#10B981',
+    disabled: '#737373'
+  },
+  font: {
+    family: 'Inter',
+    weight: 600,
+    size: '16px',
+    letterSpacing: '-2%'
+  }
+}
+
+<LaraconSelect theme={customTheme} />
+```
+
+## TypeScript Generics
+
+For type-safe handling of complex option values:
+
+```tsx
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+const userOptions: SelectOption<User>[] = [
+  { 
+    value: { id: 1, name: 'John', email: 'john@example.com' }, 
+    label: 'John Doe' 
+  }
+]
+
+<LaraconSelect<User>
+  options={userOptions}
+  onChange={(user, option) => {
+    // user is fully typed as User
+    console.log(user.email)
+  }}
+/>
+```
+
+## Keyboard Navigation
+
+- **Tab** - Focus the component
+- **Space/Enter** - Open dropdown or select focused option
+- **Arrow Up/Down** - Navigate through options
+- **Home/End** - Jump to first/last option
+- **Escape** - Close dropdown
+
+## Accessibility
+
+The component includes comprehensive accessibility features:
+- ARIA roles and properties
+- Keyboard navigation support
+- Screen reader compatibility
+- Focus management
+- Semantic HTML structure
+
+## Required Files
+
+Ensure these files are present in your project:
+
+```
+src/components/
+├── LaraconSelect.tsx
+├── AnimatedChevron.tsx
+public/
+└── checkmark.svg
+```
+
+## Browser Support
+
+Modern browsers supporting ES2022+ and CSS transforms. Built with React 19+ and TypeScript 5+.

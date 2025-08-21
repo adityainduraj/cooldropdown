@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react'
-import LaraconSelect from './components/LaraconSelect'
+import LaraconSelect, { type SelectOption } from './components/LaraconSelect'
+
+// Define the options for the select component
+const laraconOptions: SelectOption[] = [
+  { value: 'Denver, USA', label: 'Denver, USA' },
+  { value: 'Brisbane, Australia', label: 'Brisbane, Australia' },
+  { value: 'Amsterdam, Netherlands', label: 'Amsterdam, Netherlands' },
+  { value: 'Gandhinagar, India', label: 'Gandhinagar, India' },
+];
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [selectedValue, setSelectedValue] = useState<string>()
 
   useEffect(() => {
     const preloadResources = async () => {
@@ -21,6 +30,11 @@ function App() {
 
     preloadResources()
   }, [])
+
+  const handleSelectionChange = (value: string, option: SelectOption) => {
+    setSelectedValue(value);
+    console.log('Selected:', { value, option });
+  };
 
   if (!isLoaded) {
     return (
@@ -66,7 +80,13 @@ function App() {
           pointerEvents: 'none'
         }}
       />
-      <LaraconSelect />
+      <LaraconSelect
+        options={laraconOptions}
+        value={selectedValue}
+        onChange={handleSelectionChange}
+        placeholder="Select a Laracon"
+        aria-label="Select a Laracon location"
+      />
     </div>
   )
 }
