@@ -24,7 +24,9 @@ function App() {
           backgroundRepeat: 'repeat',
           backgroundSize: '55.7%',
           opacity: 0.7,
-          mixBlendMode: 'overlay'
+          mixBlendMode: 'overlay',
+          zIndex: 1000,
+          pointerEvents: 'none'
         }}
       />
       <LaraconSelect />
