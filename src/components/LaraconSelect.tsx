@@ -449,7 +449,7 @@ function LaraconSelect<T = string>({
                 letterSpacing: theme.font.letterSpacing,
                 color: theme.colors.placeholder,
                 whiteSpace: 'nowrap',
-                transform: 'translateX(4px)',
+                transform: 'translateX(16px)',
                 opacity: 0,
                 filter: 'blur(1px) drop-shadow(1px 0 0 currentColor) drop-shadow(-1px 0 0 currentColor)',
                 transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), filter 250ms cubic-bezier(0.4, 0, 0.2, 1)'
@@ -469,7 +469,7 @@ function LaraconSelect<T = string>({
               <div style={{ 
                 position: 'absolute',
                 top: 'calc(50% - 5px)',
-                transform: isTransitioningIn ? 'translateY(-50%) translateX(-4px)' : 'translateY(-50%) translateX(0px)',
+                transform: isTransitioningIn ? 'translateY(-50%) translateX(-16px)' : 'translateY(-50%) translateX(0px)',
                 left: '16px',
                 right: '60px',
                 display: 'flex',
@@ -534,7 +534,7 @@ function LaraconSelect<T = string>({
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            transform: isTransitioningOut ? 'translateY(0px) translateX(-2px)' : 'translateY(0px) translateX(0px)',
+                            transform: isTransitioningOut ? 'translateY(0px) translateX(-0px)' : 'translateY(0px) translateX(0px)',
                             opacity: isTransitioningOut ? 0 : 1,
                             filter: isTransitioningOut ? 'blur(1px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
                             transition: `transform 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, filter 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}`
