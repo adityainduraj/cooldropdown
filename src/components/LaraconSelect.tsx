@@ -81,7 +81,7 @@ const defaultTheme: SelectTheme = {
     main: 'cubic-bezier(0.23, 1, 0.32, 1)',
     scale: 'transform 100ms cubic-bezier(0.23, 1, 0.32, 1)',
     checkmark: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-    slide: 'transform 240ms cubic-bezier(0.4, 0, 0.2, 1), opacity 240ms cubic-bezier(0.4, 0, 0.2, 1), scale 240ms cubic-bezier(0.4, 0, 0.2, 1)',
+    slide: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1)',
     crossfade: 'opacity 225ms ease-in-out',
   },
 };
@@ -250,8 +250,16 @@ function LaraconSelect<T = string>({
         dispatch({ type: 'CLEAR_PREVIOUS_OPTION' });
       }, 310);
     } else {
-      dispatch({ type: 'SET_OPTION', payload: optionValue });
+      dispatch({ type: 'SET_OPTION', payload: optionValue, previousOption: currentValue || 'placeholder' });
       dispatch({ type: 'CLEAR_INTERACTION_STATES' });
+      
+      setTimeout(() => {
+        dispatch({ type: 'SET_TRANSITIONING', payload: false });
+      }, 10);
+      
+      setTimeout(() => {
+        dispatch({ type: 'CLEAR_PREVIOUS_OPTION' });
+      }, 310);
     }
 
     // Don't close dropdown on selection - keep original behavior
@@ -405,122 +413,142 @@ function LaraconSelect<T = string>({
           width: '100%', 
           overflow: 'hidden' 
         }}>
-          {/* Default state - positioned absolutely */}
-          <span
-            style={{
-              position: 'absolute',
-              left: '16px',
-              right: '60px',
-              fontFamily: theme.font.family,
-              fontWeight: theme.font.weight,
-              fontSize: theme.font.size,
-              letterSpacing: theme.font.letterSpacing,
-              color: state.selectedOption ? theme.colors.disabled : theme.colors.placeholder,
-              whiteSpace: 'nowrap',
-              transform: state.selectedOption ? 'translateY(-20px) scale(0.95)' : 'translateY(0px) scale(1)',
-              opacity: state.selectedOption ? 0 : 1,
-              transition: theme.transitions.slide
-            }}
-          >
-            {placeholder}
-          </span>
-          
-          {/* Selected state - positioned absolutely */}
-          <div style={{ 
-            position: 'absolute',
-            top: 'calc(50% - 5px)',
-            transform: state.selectedOption ? 'translateY(-50%) scale(1)' : 'translateY(calc(-50% + 20px)) scale(0.95)',
-            left: '16px',
-            right: '60px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            opacity: state.selectedOption ? 1 : 0,
-            transition: theme.transitions.slide
-          }}>
-            {/* Checkmark - slides in with text content */}
-            <img 
-              src="/checkmark.svg" 
-              alt="Selected" 
+          {/* State 1: Placeholder text only */}
+          {!state.selectedOption && (
+            <span
               style={{
-                width: '12px',
-                height: '12px',
-                marginRight: '12px',
-                marginTop: '12.5px'
+                position: 'absolute',
+                left: '16px',
+                right: '60px',
+                fontFamily: theme.font.family,
+                fontWeight: theme.font.weight,
+                fontSize: theme.font.size,
+                letterSpacing: theme.font.letterSpacing,
+                color: theme.colors.placeholder,
+                whiteSpace: 'nowrap',
+                transform: 'translateX(0px)',
+                opacity: 1,
+                filter: 'blur(0px)',
+                transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), filter 250ms cubic-bezier(0.4, 0, 0.2, 1)'
               }}
-            />
+            >
+              {placeholder}
+            </span>
+          )}
           
-            {/* Text content - 27px total height */}
-            <div style={{ 
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '7px'
-            }}>
-              <div
-                style={{
-                  fontFamily: theme.font.family,
-                  fontWeight: theme.font.weight,
-                  fontSize: '11px',
-                  letterSpacing: theme.font.letterSpacing,
-                  color: theme.colors.disabled,
-                  lineHeight: '16px',
-                  height: '8px',
-                  overflow: 'visible'
-                }}
-              >
-                Laracon
-              </div>
+          {/* State 1: Placeholder exiting */}
+          {state.selectedOption && state.previousOption === 'placeholder' && state.isTransitioning && (
+            <span
+              style={{
+                position: 'absolute',
+                left: '16px',
+                right: '60px',
+                fontFamily: theme.font.family,
+                fontWeight: theme.font.weight,
+                fontSize: theme.font.size,
+                letterSpacing: theme.font.letterSpacing,
+                color: theme.colors.placeholder,
+                whiteSpace: 'nowrap',
+                transform: 'translateX(4px)',
+                opacity: 0,
+                filter: 'blur(0px) drop-shadow(1px 0 0 currentColor) drop-shadow(-1px 0 0 currentColor)',
+                transition: 'transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), filter 250ms cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {placeholder}
+            </span>
+          )}
+          
+          {/* State 2: Selected state with checkmark + Laracon + city */}
+          {state.selectedOption && (() => {
+            const isFromPlaceholder = state.previousOption === 'placeholder';
+            const isTransitioningIn = isFromPlaceholder && state.isTransitioning;
+            const shouldDelay = isFromPlaceholder && !state.isTransitioning;
+            
+            return (
               <div style={{ 
-                position: 'relative',
-                height: '12px',
-                overflow: 'visible'
+                position: 'absolute',
+                top: 'calc(50% - 5px)',
+                transform: isTransitioningIn ? 'translateY(-50%) translateX(-4px)' : 'translateY(-50%) translateX(0px)',
+                left: '16px',
+                right: '60px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                opacity: isTransitioningIn ? 0 : 1,
+                filter: isTransitioningIn ? 'blur(0px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
+                transition: `transform 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, filter 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}`
               }}>
-                {/* Previous option (exiting) */}
-                {state.previousOption && state.isTransitioning && (
+                {/* Checkmark - slides in with text content */}
+                <img 
+                  src="/checkmark.svg" 
+                  alt="Selected" 
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    marginRight: '12px',
+                    marginTop: '12.5px'
+                  }}
+                />
+              
+                {/* Text content - 27px total height */}
+                <div style={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '7px'
+                }}>
                   <div
                     style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
                       fontFamily: theme.font.family,
                       fontWeight: theme.font.weight,
-                      fontSize: theme.font.size,
+                      fontSize: '11px',
                       letterSpacing: theme.font.letterSpacing,
-                      color: theme.colors.text,
-                      lineHeight: '24px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      transition: theme.transitions.crossfade,
-                      opacity: 0
+                      color: theme.colors.disabled,
+                      lineHeight: '16px',
+                      height: '8px',
+                      overflow: 'visible'
                     }}
                   >
-                    {state.previousOption}
+                    Laracon
                   </div>
-                )}
-                
-                {/* Current option (entering) */}
-                <div
-                  key={state.selectedOption}
-                  style={{
-                    fontFamily: theme.font.family,
-                    fontWeight: theme.font.weight,
-                    fontSize: theme.font.size,
-                    letterSpacing: theme.font.letterSpacing,
-                    color: theme.colors.text,
-                    lineHeight: '24px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: theme.transitions.crossfade,
-                    opacity: state.isTransitioning ? 0 : 1
-                  }}
-                >
-                  {state.selectedOption}
+                  <div style={{ 
+                    position: 'relative',
+                    height: '12px',
+                    overflow: 'visible'
+                  }}>
+                    {/* Current city - shows immediately when transitioning from placeholder, slides in when changing cities */}
+                    {(() => {
+                      const isCityTransition = state.previousOption && state.previousOption !== 'placeholder';
+                      const isTransitioningOut = isCityTransition && state.isTransitioning;
+                      const shouldDelay = isCityTransition && !state.isTransitioning;
+                      
+                      return (
+                        <div
+                          key={state.selectedOption}
+                          style={{
+                            fontFamily: theme.font.family,
+                            fontWeight: theme.font.weight,
+                            fontSize: theme.font.size,
+                            letterSpacing: theme.font.letterSpacing,
+                            color: theme.colors.text,
+                            lineHeight: '24px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            transform: isTransitioningOut ? 'translateY(0px) translateX(-4px)' : 'translateY(0px) translateX(0px)',
+                            opacity: isTransitioningOut ? 0 : 1,
+                            filter: isTransitioningOut ? 'blur(0px) drop-shadow(-1px 0 0 currentColor) drop-shadow(1px 0 0 currentColor)' : 'blur(0px)',
+                            transition: `transform 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}, filter 250ms cubic-bezier(0.4, 0, 0.2, 1) ${shouldDelay ? '75ms' : '0ms'}`
+                          }}
+                        >
+                          {state.selectedOption}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
         
         <div style={{ 
