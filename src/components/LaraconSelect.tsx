@@ -346,6 +346,26 @@ function LaraconSelect<T = string>({
     dispatch({ type: 'SET_PRESSED', payload: false });
   }, []);
 
+  // Track if navigation is via keyboard
+  const keyboardNavRef = useRef(false);
+  const [mainCellFocused, setMainCellFocused] = React.useState(false);
+
+  // Listen for keyboard/mouse events globally
+  useEffect(() => {
+    const handleKeyDown = () => {
+      keyboardNavRef.current = true;
+    };
+    const handleMouseDown = () => {
+      keyboardNavRef.current = false;
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('mousedown', handleMouseDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
+
   return (
     <div 
       style={{ position: 'relative', ...style }} 
@@ -401,8 +421,34 @@ function LaraconSelect<T = string>({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        onKeyDown={handleKeyDown}
+        onKeyDown={e => {
+          handleKeyDown(e);
+          if (!state.isOpen && e.key === 'Escape') {
+            keyboardNavRef.current = false;
+            setMainCellFocused(false);
+            if (buttonRef.current) buttonRef.current.blur();
+          }
+        }}
+        onFocus={() => setMainCellFocused(true)}
+        onBlur={() => setMainCellFocused(false)}
       >
+        {/* Keyboard focus border for main cell (only when closed and focused via keyboard) */}
+        {keyboardNavRef.current && mainCellFocused && !state.isOpen && (
+          <span
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              border: '2px solid #10B981',
+              borderRadius: theme.borderRadius,
+              pointerEvents: 'none',
+              boxSizing: 'border-box',
+              zIndex: 999
+            }}
+          />
+        )}
         {/* Text content container */}
         <div style={{ 
           position: 'relative', 
@@ -617,7 +663,7 @@ function LaraconSelect<T = string>({
                 marginLeft: '16px',
                 opacity: String(option.value) === state.selectedOption ? 1 : 
                         (state.previousOption === String(option.value) && state.isTransitioning ? 1 : 
-                        (state.hoveredOptionIndex === index && !option.disabled ? 0.25 : 0)),
+                        ((state.hoveredOptionIndex === index || (keyboardNavRef.current && state.focusedOptionIndex === index)) && !option.disabled ? 0.25 : 0)),
                 transition: theme.transitions.checkmark
               }}
             />
@@ -633,6 +679,23 @@ function LaraconSelect<T = string>({
             >
               {option.label}
             </span>
+            {/* Keyboard focus border */}
+            {keyboardNavRef.current && state.focusedOptionIndex === index && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  border: '2px solid #10B981',
+                  borderRadius: theme.borderRadius,
+                  pointerEvents: 'none',
+                  boxSizing: 'border-box',
+                  zIndex: 999
+                }}
+              />
+            )}
           </div>
         ))}
       </div>
