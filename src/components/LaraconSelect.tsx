@@ -625,7 +625,7 @@ function LaraconSelect<T = string>({
               height: theme.height,
               display: 'flex',
               alignItems: 'center',
-              background: theme.background,
+              background: '#171717',
               border: theme.border,
               borderRadius: theme.borderRadius,
               cursor: option.disabled ? 'not-allowed' : 'pointer',
