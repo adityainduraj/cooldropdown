@@ -620,32 +620,32 @@ function LaraconSelect<T = string>({
             aria-selected={String(option.value) === state.selectedOption}
             aria-disabled={option.disabled}
             tabIndex={-1}
-            style={{
-              width: theme.width,
-              height: theme.height,
-              display: 'flex',
-              alignItems: 'center',
-              background: '#171717',
-              border: theme.border,
-              borderRadius: theme.borderRadius,
-              cursor: option.disabled ? 'not-allowed' : 'pointer',
-              marginTop: index === 0 ? '0' : '12px',
-              position: 'relative',
-              zIndex: 99 - index,
-              transformOrigin: 'right center',
-              transform: `${state.isOpen ? 
-                `translateY(0) translateX(${index * 2}px) rotate(-${index + 1}deg)` : 
-                `translateY(-${60 + (index * 60)}px) translateX(0) rotate(0deg)`}`,
-              scale: state.pressedOptionIndex === index && !option.disabled ? '0.99' : '1',
-
-              opacity: state.isOpen ? (option.disabled ? 0.5 : 1) : 0.05,
-              transition: `scale 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms ${theme.transitions.main} ${index * 60}ms, opacity 225ms ease ${index * 60 + 75}ms`,
-              pointerEvents: state.isOpen ? 'auto' : 'none',
-              WebkitTapHighlightColor: 'transparent',
-              WebkitTouchCallout: 'none',
-              WebkitUserSelect: 'none',
-              outline: 'none'
-            }}
+             style={{
+               width: theme.width,
+               height: theme.height,
+               display: 'flex',
+               alignItems: 'center',
+               background: '#171717',
+               border: theme.border,
+               borderRadius: theme.borderRadius,
+               cursor: option.disabled ? 'not-allowed' : 'pointer',
+               marginTop: index === 0 ? '0' : '12px',
+               position: 'relative',
+               zIndex: 99 - index,
+               transformOrigin: 'right center',
+               transform: `${state.isOpen ?
+                 `translateY(0) translateX(${index * 2}px) rotate(-${index + 1}deg)` :
+                 `translateY(-${60 + (index * 60)}px) translateX(0) rotate(0deg)`}`,
+               scale: state.pressedOptionIndex === index && !option.disabled ? '0.99' : '1',
+               filter: state.isOpen ? 'blur(0px)' : 'blur(2px)',
+               opacity: state.isOpen ? (option.disabled ? 0.5 : 1) : 0.05,
+               transition: `scale 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms ${theme.transitions.main} ${index * 60}ms, opacity 225ms ease ${index * 60 + 75}ms, filter 300ms ${theme.transitions.main} ${index * 60}ms`,
+               pointerEvents: state.isOpen ? 'auto' : 'none',
+               WebkitTapHighlightColor: 'transparent',
+               WebkitTouchCallout: 'none',
+               WebkitUserSelect: 'none',
+               outline: 'none'
+             }}
             onClick={() => handleOptionSelect(option)}
             onMouseDown={() => !option.disabled && dispatch({ type: 'SET_PRESSED_OPTION', payload: index })}
             onMouseUp={() => dispatch({ type: 'SET_PRESSED_OPTION', payload: null })}
