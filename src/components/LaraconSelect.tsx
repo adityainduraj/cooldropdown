@@ -49,6 +49,7 @@ export interface LaraconSelectProps<T = string> {
   'aria-label'?: string;
   'aria-labelledby'?: string;
   autoFocus?: boolean;
+  autoCollapse?: boolean;
 }
 
 // Default theme
@@ -181,6 +182,7 @@ function LaraconSelect<T = string>({
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
   autoFocus = false,
+  autoCollapse = false,
 }: LaraconSelectProps<T>) {
   const [state, dispatch] = useReducer(selectReducer, {
     ...initialState,
@@ -231,101 +233,9 @@ function LaraconSelect<T = string>({
     }
   }, [value, state.selectedOption]);
 
-  // Handle option selection
-  const handleOptionSelect = useCallback((option: SelectOption<T>) => {
-    if (option.disabled) return;
 
-    const optionValue = String(option.value);
-    const currentValue = state.selectedOption;
 
-    if (currentValue && currentValue !== optionValue) {
-      dispatch({ type: 'SET_OPTION', payload: optionValue, previousOption: currentValue });
-      dispatch({ type: 'CLEAR_INTERACTION_STATES' });
-      
-      setTimeout(() => {
-        dispatch({ type: 'SET_TRANSITIONING', payload: false });
-      }, 10);
-      
-      setTimeout(() => {
-        dispatch({ type: 'CLEAR_PREVIOUS_OPTION' });
-      }, 310);
-    } else {
-      dispatch({ type: 'SET_OPTION', payload: optionValue, previousOption: currentValue || 'placeholder' });
-      dispatch({ type: 'CLEAR_INTERACTION_STATES' });
-      
-      setTimeout(() => {
-        dispatch({ type: 'SET_TRANSITIONING', payload: false });
-      }, 10);
-      
-      setTimeout(() => {
-        dispatch({ type: 'CLEAR_PREVIOUS_OPTION' });
-      }, 310);
-    }
 
-    // Don't close dropdown on selection - keep original behavior
-    // dispatch({ type: 'CLOSE_DROPDOWN' });
-    // buttonRef.current?.focus();
-    
-    if (onChange) {
-      onChange(option.value, option);
-    }
-  }, [state.selectedOption, onChange]);
-
-  // Keyboard navigation
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (disabled) return;
-
-    switch (event.key) {
-      case 'Enter':
-      case ' ':
-        event.preventDefault();
-        if (!state.isOpen) {
-          dispatch({ type: 'OPEN_DROPDOWN' });
-        } else if (state.focusedOptionIndex !== null) {
-          const option = options[state.focusedOptionIndex];
-          handleOptionSelect(option);
-          // Don't close dropdown - maintain original behavior
-        }
-        break;
-      case 'Escape':
-        event.preventDefault();
-        dispatch({ type: 'CLOSE_DROPDOWN' });
-        buttonRef.current?.focus();
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        if (!state.isOpen) {
-          dispatch({ type: 'OPEN_DROPDOWN' });
-        } else {
-          const nextIndex = state.focusedOptionIndex === null ? 0 : 
-            Math.min(state.focusedOptionIndex + 1, options.length - 1);
-          dispatch({ type: 'SET_FOCUSED_OPTION', payload: nextIndex });
-        }
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        if (!state.isOpen) {
-          dispatch({ type: 'OPEN_DROPDOWN' });
-        } else {
-          const prevIndex = state.focusedOptionIndex === null ? options.length - 1 : 
-            Math.max(state.focusedOptionIndex - 1, 0);
-          dispatch({ type: 'SET_FOCUSED_OPTION', payload: prevIndex });
-        }
-        break;
-      case 'Home':
-        event.preventDefault();
-        if (state.isOpen) {
-          dispatch({ type: 'SET_FOCUSED_OPTION', payload: 0 });
-        }
-        break;
-      case 'End':
-        event.preventDefault();
-        if (state.isOpen) {
-          dispatch({ type: 'SET_FOCUSED_OPTION', payload: options.length - 1 });
-        }
-        break;
-    }
-  }, [disabled, state.isOpen, state.focusedOptionIndex, options, handleOptionSelect]);
 
   // Button click handler
   const handleButtonClick = useCallback(() => {
@@ -350,19 +260,99 @@ function LaraconSelect<T = string>({
   const keyboardNavRef = useRef(false);
   const [mainCellFocused, setMainCellFocused] = React.useState(false);
 
-  // Listen for keyboard/mouse events globally
+  // Toggle auto-collapse behavior
+  const [autoCollapseState, setAutoCollapseState] = React.useState(autoCollapse);
+
+  // Handle option selection
+  const handleOptionSelect = useCallback((option: SelectOption<T>) => {
+    if (option.disabled) return;
+
+    const optionValue = String(option.value);
+    const currentValue = state.selectedOption;
+    const isChanging = currentValue && currentValue !== optionValue;
+
+    dispatch({
+      type: 'SET_OPTION',
+      payload: optionValue,
+      previousOption: isChanging ? currentValue : (currentValue || 'placeholder')
+    });
+    dispatch({ type: 'CLEAR_INTERACTION_STATES' });
+
+    // Handle transition timing
+    setTimeout(() => dispatch({ type: 'SET_TRANSITIONING', payload: false }), 10);
+    setTimeout(() => dispatch({ type: 'CLEAR_PREVIOUS_OPTION' }), 310);
+
+    // Close dropdown if auto-collapse is enabled
+    if (autoCollapseState) {
+      dispatch({ type: 'CLOSE_DROPDOWN' });
+      buttonRef.current?.focus();
+    }
+
+    if (onChange) onChange(option.value, option);
+  }, [state.selectedOption, onChange, autoCollapseState]);
+
+  // Keyboard navigation
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (disabled) return;
+
+    const { key } = event;
+    const isNavigationKey = ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(key);
+
+    if (isNavigationKey) {
+      event.preventDefault();
+      if (!state.isOpen) {
+        dispatch({ type: 'OPEN_DROPDOWN' });
+      } else {
+        let newIndex = 0;
+        switch (key) {
+          case 'ArrowDown':
+            newIndex = state.focusedOptionIndex === null ? 0 :
+              Math.min(state.focusedOptionIndex + 1, options.length - 1);
+            break;
+          case 'ArrowUp':
+            newIndex = state.focusedOptionIndex === null ? options.length - 1 :
+              Math.max(state.focusedOptionIndex - 1, 0);
+            break;
+          case 'Home':
+            newIndex = 0;
+            break;
+          case 'End':
+            newIndex = options.length - 1;
+            break;
+        }
+        dispatch({ type: 'SET_FOCUSED_OPTION', payload: newIndex });
+      }
+    } else {
+      switch (key) {
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          if (!state.isOpen) {
+            dispatch({ type: 'OPEN_DROPDOWN' });
+          } else if (state.focusedOptionIndex !== null) {
+            handleOptionSelect(options[state.focusedOptionIndex]);
+          }
+          break;
+        case 'Escape':
+          event.preventDefault();
+          dispatch({ type: 'CLOSE_DROPDOWN' });
+          buttonRef.current?.focus();
+          break;
+      }
+    }
+  }, [disabled, state.isOpen, state.focusedOptionIndex, options, handleOptionSelect]);
+
+  // Track navigation method (keyboard vs mouse)
   useEffect(() => {
-    const handleKeyDown = () => {
-      keyboardNavRef.current = true;
-    };
-    const handleMouseDown = () => {
-      keyboardNavRef.current = false;
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('mousedown', handleMouseDown);
+    const trackKeyboardNav = () => keyboardNavRef.current = true;
+    const trackMouseNav = () => keyboardNavRef.current = false;
+
+    window.addEventListener('keydown', trackKeyboardNav);
+    window.addEventListener('mousedown', trackMouseNav);
+
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('keydown', trackKeyboardNav);
+      window.removeEventListener('mousedown', trackMouseNav);
     };
   }, []);
 
@@ -421,14 +411,7 @@ function LaraconSelect<T = string>({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        onKeyDown={e => {
-          handleKeyDown(e);
-          if (!state.isOpen && e.key === 'Escape') {
-            keyboardNavRef.current = false;
-            setMainCellFocused(false);
-            if (buttonRef.current) buttonRef.current.blur();
-          }
-        }}
+        onKeyDown={handleKeyDown}
         onFocus={() => setMainCellFocused(true)}
         onBlur={() => setMainCellFocused(false)}
       >
@@ -699,6 +682,48 @@ function LaraconSelect<T = string>({
             )}
           </div>
         ))}
+      </div>
+
+      {/* Toggle for auto-collapse behavior */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          fontFamily: theme.font.family,
+          fontWeight: theme.font.weight,
+          fontSize: theme.font.size,
+          letterSpacing: theme.font.letterSpacing,
+          color: '#059669',
+          cursor: 'pointer',
+          userSelect: 'none',
+          zIndex: 10000,
+          transition: 'all 0.15s ease'
+        }}
+        onClick={() => setAutoCollapseState(!autoCollapseState)}
+        onMouseEnter={(e) => {
+          const underline = e.currentTarget.querySelector('.underline') as HTMLElement;
+          if (underline) underline.style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          const underline = e.currentTarget.querySelector('.underline') as HTMLElement;
+          if (underline) underline.style.opacity = '0';
+        }}
+      >
+        auto collapse: {autoCollapseState ? 'on' : 'off'}
+        <div
+          className="underline"
+          style={{
+            position: 'absolute',
+            bottom: '-2px',
+            left: '0',
+            right: '0',
+            height: '2px',
+            backgroundColor: '#059669',
+            opacity: '0',
+            transition: 'opacity 0.15s ease'
+          }}
+        />
       </div>
     </div>
   );
