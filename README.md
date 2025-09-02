@@ -2,6 +2,15 @@
 
 A modern, accessible dropdown select for React + TypeScript. Fully customizable, type-safe, and performance-optimized with `React.memo`. No dependencies except React.
 
+## Design Notes
+
+I really enjoyed building this component—it's clean, responsive, and feels intuitive to use. 
+For design decisions, I considered adding sound effects but skipped it since most users probably browse without audio, avoiding unnecessary complexity. 
+The dropdown is fully keyboard navigable for accessibility. 
+I kept both auto-collapse (on selection) and clickable collapse modes to give users flexibility. 
+The design, fonts, and sizes match the Figma mockup exactly, though I moved the positioning up a bit to keep the layout cleaner for visualization. 
+For the checkmark and state transition, I thought about stroke animations but went with a fade/slide combo from the right with motion blur instead—stroke animations take longer and could frustrate users with frequent interactions.
+
 ## Features
 - Accessible (ARIA, keyboard navigation)
 - TypeScript generics for type-safe options
