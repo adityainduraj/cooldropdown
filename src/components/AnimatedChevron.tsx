@@ -18,7 +18,7 @@ const AnimatedChevron: React.FC<AnimatedChevronProps> = ({ isExpanded, className
       style={style}
     >
       <path 
-        d={isExpanded ? "M2.5 3.5L6 0.5L9.5 3.5" : "M2.5 1.25L6 4L9.5 1.25"} 
+        d={isExpanded ? "M2.5 1.25L6 4L9.5 1.25" : "M2.5 3.5L6 0.5L9.5 3.5"} 
         stroke="#10B981" 
         strokeLinecap="round" 
         strokeLinejoin="round"
@@ -27,7 +27,7 @@ const AnimatedChevron: React.FC<AnimatedChevronProps> = ({ isExpanded, className
         }}
       />
       <path 
-        d={isExpanded ? "M9.5 8.5L6 11.5L2.5 8.5" : "M9.5 10.75L6 8L2.5 10.75"} 
+        d={isExpanded ? "M9.5 10.75L6 8L2.5 10.75" : "M9.5 8.5L6 11.5L2.5 8.5"} 
         stroke="#10B981" 
         strokeLinecap="round" 
         strokeLinejoin="round"
